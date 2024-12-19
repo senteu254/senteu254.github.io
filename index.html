@@ -1,0 +1,356 @@
+# GCMF Executive Board
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>GCMF Executive Board</title>
+<style>
+  html {
+    background: #222;
+  }
+
+  body {
+    margin: 0; 
+    padding: 0; 
+    background: transparent;
+    color: #eee;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    position: relative;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  #starfield {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0;
+    animation: flicker 5s infinite alternate ease-in-out;
+  }
+
+  @keyframes flicker {
+    0% { opacity: 0; transform: translate(0,0); }
+    50% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-10px,5px); }
+  }
+
+  .star-delay1 { animation-delay: 1s; }
+  .star-delay2 { animation-delay: 2s; }
+  .star-delay3 { animation-delay: 3s; }
+  .star-slow   { animation-duration: 7s; }
+
+  .star-small  { width: 4px; height: 4px; }
+  .star-medium { width: 6px; height: 6px; }
+  .star-large  { width: 8px; height: 8px; }
+
+  svg {
+    display: block;
+    margin: 0;
+    background: transparent;
+    width: 100%;
+    height: 100%;
+  }
+
+  .node text {
+    font: 12px sans-serif;
+    fill: #eee;
+  }
+
+  .link {
+    fill: none;
+    stroke: #555;
+    stroke-width: 1.5px;
+  }
+
+  #tooltip {
+    position: absolute;
+    text-align: left;
+    width: 220px;
+    background: #333;
+    border: 1px solid #888;
+    padding: 10px;
+    font-size: 12px;
+    color: #eee;
+    pointer-events: none;
+    visibility: hidden;
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+<div id="starfield"></div>
+<div id="tooltip"></div>
+<svg></svg>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+  const starfield = document.getElementById('starfield');
+  const starCount = 100;
+  const sizes = ['star-small', 'star-medium', 'star-large'];
+  const delayClasses = ['star-delay1','star-delay2','star-delay3','star-slow'];
+
+  const starColors = [
+    '#FFD700', '#FF69B4', '#00FFFF', '#FF8C00', '#ADFF2F', '#DA70D6', '#00FA9A',
+  ];
+
+  for (let i = 0; i < starCount; i++) {
+    const star = document.createElement('div');
+    star.classList.add('star');
+    const x = Math.random() * window.innerWidth;
+    const y = Math.random() * window.innerHeight;
+    star.style.left = x + 'px';
+    star.style.top = y + 'px';
+    star.classList.add(sizes[Math.floor(Math.random()*sizes.length)]);
+    star.classList.add(delayClasses[Math.floor(Math.random()*delayClasses.length)]);
+    const color = starColors[Math.floor(Math.random() * starColors.length)];
+    star.style.background = `radial-gradient(circle, ${color} 5%, ${color} 20%, transparent 100%)`;
+    starfield.appendChild(star);
+  }
+
+  let participants = [
+    ["Indonesia", "Gatot Sugiharto - Chairman "],
+      ["USA, Kenya", "Matt Hales - CO Chairman"],
+    ["Papua New Guinea", "Immaculate Javia - Secretary"],
+    ["USA", "William Renz - Treasurer"]
+  ];
+
+  const countryFlagMap = {
+    "indonesia": "🇮🇩",
+    "kenya": "🇰🇪",
+    "usa": "🇺🇸",
+    "papua new guinea": "🇵🇬"
+  };
+
+      function getMainCountryName(c) {
+        let parts = c.split(",").map(s => s.trim().toLowerCase());
+        for (let part of parts.reverse()) {
+            if (countryFlagMap[part]) return part;
+        }
+        return null;
+    }
+
+    function getFlagForCountry(c) {
+        let mainName = getMainCountryName(c);
+        return mainName ? countryFlagMap[mainName] : "🌐";
+    }
+
+    let byCountry = {};
+    participants.forEach(p => {
+        let [country, name, org, pos, web, contact] = p;
+        if (!byCountry[country]) byCountry[country] = [];
+        byCountry[country].push({ name, org, pos, web, contact });
+    });
+
+    let data = {
+        name: "GCMF Executive Board",
+        children: Object.keys(byCountry).map(country => {
+            let entries = byCountry[country];
+            return {
+                name: country,
+                type: "country",
+                flag: getFlagForCountry(country),
+                children: entries.map(e => ({
+                    name: e.name,
+                     type: "person",
+              person: {
+                name: e.name,
+                organization: e.org,
+                position: e.pos,
+                website: e.web,
+                contact: e.contact
+              }
+                }))
+            };
+        })
+    };
+
+  const width = 850;
+  const height = 750;
+  const svg = d3.select("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  const gLink = svg.append("g").attr("class", "links");
+  const gNode = svg.append("g").attr("class", "nodes");
+
+  let root = d3.hierarchy(data);
+  const treeLayout = d3.tree().size([height - 200, width - 300]);
+  treeLayout(root);
+
+  collapse(root);
+  update(root);
+
+  function collapse(d) {
+    if (d.children) {
+      d._children = d.children;
+      d._children.forEach(collapse);
+      d.children = null;
+    }
+  }
+
+  function expandAll(d) {
+    if (d._children) {
+      d.children = d._children;
+      d._children = null;
+    }
+    if (d.children) {
+      d.children.forEach(expandAll);
+    }
+  }
+
+  function toggleChildren(d) {
+  // If the node is collapsed, expand it; else collapse
+  if(d.children) {
+    // It's open, so collapse
+    d._children = d.children;
+    d.children = null;
+  } else {
+    // It's collapsed, so open
+    d.children = d._children;
+    d._children = null;
+    // If it's GCMF or a country, after opening, fully expand all descendants
+    if (d.data.name === "GCMF" || d.data.type === "country") {
+      expandAll(d);
+    }
+  }
+}
+
+function getDisplayLines(d) {
+  if (d.data.name === "National Chairman") {
+    const person = d.data.person;
+    if (person && person.name !== "No identified national chairman yet") {
+      return [
+        `National Chairman: ${person.name}`,
+        `Position: ${person.position}`,
+        `Contact: ${person.contact ? person.contact : 'Unknown'}`
+      ];
+    } else {
+      return [ "National Chairman: Unknown" ];
+    }
+  } else if (d.data.name === "Members") {
+    return [ "Members" ]; // No "(click to expand)"
+  } else if (d.data.type === "country") {
+    let flag = getFlagForCountry(d.data.name);
+    return [ `${flag} ${d.data.name}` ];
+  } else {
+    return [ d.data.name ];
+  }
+}
+
+function update(source) {
+  treeLayout(root);
+
+  const link = gLink.selectAll(".link")
+    .data(root.links(), d => d.target.id);
+
+  link.enter().append("path")
+    .attr("class", "link")
+    .merge(link)
+    .attr("d", d3.linkHorizontal()
+          .x(d => d.y)
+          .y(d => d.x));
+
+  link.exit().remove();
+
+  const node = gNode.selectAll(".node")
+    .data(root.descendants(), d => d.id || (d.id = Math.random()));
+
+  const nodeEnter = node.enter().append("g")
+    .attr("class", "node")
+    .on("click", (event, d) => {
+      toggleChildren(d);
+      update(d);
+    })
+    .on("mouseover", (event, d) => {
+      if (d.data.person && d.data.person.name && d.data.person.name !== "No identified national chairman yet") {
+        tooltip.html(`
+          <strong>${d.data.person.name}</strong><br>
+          <strong>Position:</strong> ${d.data.person.position}<br>
+          <strong>Org:</strong> ${d.data.person.organization}<br>
+          <a href="${d.data.person.website}" target="_blank">${d.data.person.website}</a><br>
+          <strong>Contact:</strong> ${d.data.person.contact}
+        `);
+        tooltip.style("visibility", "visible");
+      }
+    })
+    .on("mousemove", (event) => {
+      tooltip
+        .style("top", (event.pageY + 15) + "px")
+        .style("left", (event.pageX + 15) + "px");
+    })
+    .on("mouseout", () => {
+      tooltip.style("visibility", "hidden");
+    });
+
+  nodeEnter.each(function(d) {
+    const g = d3.select(this);
+    const lines = getDisplayLines(d);
+    const lineHeight = 15;
+    const boxHeight = lines.length * lineHeight + 10; 
+    const boxWidth = 250; 
+    let bgColor = "#333";
+
+    if(d.data.type === "country") {
+      // Country stripe
+      g.append("rect")
+        .attr("x", 0)
+        .attr("y", -12)
+        .attr("width", 10)
+        .attr("height", boxHeight)
+        .attr("fill", d.data.color);
+      
+      g.append("rect")
+        .attr("width", boxWidth - 10)
+        .attr("height", boxHeight)
+        .attr("y", -12)
+        .attr("x", 10)
+        .attr("fill", bgColor)
+        .attr("stroke", "#ccc");
+      
+      let text = g.append("text")
+        .attr("x", 15)
+        .attr("fill", "#eee");
+      lines.forEach((line, i) => {
+        text.append("tspan")
+          .attr("x", 15)
+          .attr("dy", i === 0 ? 4 : lineHeight)
+          .text(line);
+      });
+
+    } else {
+      g.append("rect")
+        .attr("width", boxWidth)
+        .attr("height", boxHeight)
+        .attr("y", -12)
+        .attr("x", 0)
+        .attr("fill", bgColor)
+        .attr("stroke", "#ccc");
+
+      let text = g.append("text")
+        .attr("x", 5)
+        .attr("fill", "#eee");
+      lines.forEach((line, i) => {
+        text.append("tspan")
+          .attr("x", 5)
+          .attr("dy", i === 0 ? 4 : lineHeight)
+          .text(line);
+      });
+    }
+  });
+
+  nodeEnter.merge(node)
+    .attr("transform", d => `translate(${d.y},${d.x})`); 
+
+  node.exit().remove();
+}
+</script>
+</body>
+</html>
