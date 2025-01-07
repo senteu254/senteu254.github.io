@@ -1,10 +1,8 @@
-# GCMF Executive Board
-
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
-<title>GCMF Executive Board</title>
+<title>GCMF Hierarchy with Full Expansion and Multicolor Stars</title>
 <style>
   html {
     background: #222;
@@ -16,10 +14,8 @@
     background: transparent;
     color: #eee;
     font-family: Arial, sans-serif;
-    overflow: hidden;
+    overflow: auto;
     position: relative;
-    height: 100vh;
-    width: 100vw;
   }
 
   #starfield {
@@ -31,6 +27,7 @@
 
   .star {
     position: absolute;
+    /* We'll define star colors dynamically in JS */
     border-radius: 50%;
     opacity: 0;
     animation: flicker 5s infinite alternate ease-in-out;
@@ -53,10 +50,9 @@
 
   svg {
     display: block;
-    margin: 0;
+    margin: 20px;
     background: transparent;
-    width: 100%;
-    height: 100%;
+    /* No bounding box here */
   }
 
   .node text {
@@ -88,125 +84,295 @@
 <body>
 <div id="starfield"></div>
 <div id="tooltip"></div>
-<svg></svg>
+<svg width="1500" height="2000"></svg>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-  const starfield = document.getElementById('starfield');
-  const starCount = 100;
-  const sizes = ['star-small', 'star-medium', 'star-large'];
-  const delayClasses = ['star-delay1','star-delay2','star-delay3','star-slow'];
+// -----------------------------------------
+// MULTICOLOR STARFIELD SETUP
+// -----------------------------------------
+const starfield = document.getElementById('starfield');
+const starCount = 100;
+const sizes = ['star-small', 'star-medium', 'star-large'];
+const delayClasses = ['star-delay1','star-delay2','star-delay3','star-slow'];
 
-  const starColors = [
-    '#FFD700', '#FF69B4', '#00FFFF', '#FF8C00', '#ADFF2F', '#DA70D6', '#00FA9A',
-  ];
+// Multiple colors for stars
+const starColors = [
+  '#FFD700', // Gold
+  '#FF69B4', // Hot Pink
+  '#00FFFF', // Aqua
+  '#FF8C00', // Dark Orange
+  '#ADFF2F', // Greenish Yellow
+  '#DA70D6', // Orchid
+  '#00FA9A', // Medium Spring Green
+];
 
-  for (let i = 0; i < starCount; i++) {
-    const star = document.createElement('div');
-    star.classList.add('star');
-    const x = Math.random() * window.innerWidth;
-    const y = Math.random() * window.innerHeight;
-    star.style.left = x + 'px';
-    star.style.top = y + 'px';
-    star.classList.add(sizes[Math.floor(Math.random()*sizes.length)]);
-    star.classList.add(delayClasses[Math.floor(Math.random()*delayClasses.length)]);
-    const color = starColors[Math.floor(Math.random() * starColors.length)];
-    star.style.background = `radial-gradient(circle, ${color} 5%, ${color} 20%, transparent 100%)`;
-    starfield.appendChild(star);
+for (let i = 0; i < starCount; i++) {
+  const star = document.createElement('div');
+  star.classList.add('star');
+
+  // Random position
+  const x = Math.random() * window.innerWidth;
+  const y = Math.random() * window.innerHeight;
+  star.style.left = x + 'px';
+  star.style.top = y + 'px';
+
+  // Random size and delay class
+  star.classList.add(sizes[Math.floor(Math.random()*sizes.length)]);
+  star.classList.add(delayClasses[Math.floor(Math.random()*delayClasses.length)]);
+
+  // Choose a random star color and create a radial gradient background
+  const color = starColors[Math.floor(Math.random() * starColors.length)];
+  // radial gradient: center bright, fading out
+  star.style.background = `radial-gradient(circle, ${color} 5%, ${color} 20%, transparent 100%)`;
+
+  starfield.appendChild(star);
+}
+
+// -----------------------------------------
+// FULL PARTICIPANTS DATA
+// -----------------------------------------
+let participants = [
+ ["South Africa","Kgothatso Nhlengetwa","NAAM","AADVISOR","https://web.facebook.com/groups/773326350152467","+27 73 004 2457"],
+ ["DRC","Augustin Tresmore","FEMICO","Advisor Expert","https://fecomico.org/","+243978125559"],
+ ["Mali","Foumba Tafaran Mamadou","Columbia River Mining Supplies","Africa and Middle East Representative","https://www.linkedin.com/in/fomba-tafaran-mamadou-a27579125","+22369891406"],
+ ["Ivory Coast","Jonathan Kekelys","JON & KIN,CO","CEO","https://www.linkedin.com/in/jonathan-kekelys-9025484/","+2250140092453"],
+ ["USA","William Renz","ABC International Trading Company","CEO","https://abcmineralmining.com/","+231 77 798 0433"],
+ ["South Africa","Stephan Theo Wee","SADAC VENTURES","CEO","https://www.linkedin.com/in/stephan-theo-wee-7a631313b/","+27 79 306 7210"],
+ ["Paris, France","Solange Boccovi","Orion & Sirius Gems Ltd. Cassiopee-A Gems Ltd","CEO","http://www.orionandsirius.com","+33 7 78 95 34 40"],
+ ["Ghana","Madiou Adnane Barry","BIRIGUINI","CEO","https://www.linkedin.com/in/madadbarry?utm_source=share&utm","+233538992888"],
+ ["Philippines","Panfilo Dobluis","ADSMINFED","Chairman National","https://www.artisanalminingadvocates.com/philippines","+639262562160"],
+ ["Indonesia","Gatot Sugiharto","APRI","Chairman National","https://apriresmi.com/","+62 813-1813-5059"],
+ ["Kenya","Dan Odida","ASMAK","Chairman National","http://www.asmakenya.com/","+254723010273"],
+ ["Zambia","Simon Njovu","SSMAZ","Chairman National","https://www.linkedin.com/in/simon-njovu-a8902a67/?originalSub","+260966002738"],
+ ["South Africa","Shawn Paps Letlhoko","NAAM National Association of Artisanal Miners","Chairman National","https://web.facebook.com/groups/773326350152467","+27 76 028 0187"],
+ ["Peru","Maximo Adolfo Franco Bequer","FEMARAPQ: Peru Federation of Small","Chairman National","","+51 950 842 556"],
+ ["Congo DrC","Michel Nsamba","FEMICO","Chairman National Advisor Expert","https://fecomico.org/","+243994356478"],
+ ["Zimbabwe","Wellington Takavarasha","Zimbabwe Miners Federation","Chairman National CEO","http://www.zimminersfed.org","+263772986436"],
+ ["Uganda","Maddam Josphine","UGAASM","Chairman National Secretary","https://www.artisanalminingadvocates.com/uganda","+256780679923"],
+ ["Nigeria","Janet Adeyemi","Women in Mining Nigeria","Chairman National WIM Founder","http://www.wimng.org","+2348065794162"],
+ ["Republic of Guinea","Joseph Dopavogui","Natural Ressources without Poverty","Chairman NGO","","+224623643490"],
+ ["Uganda","Anyede Monical","Busia United (BU) small scale mining association","Chairman regional ?","https://www.artisanalminingadvocates.com/uganda","+256784677944"],
+ ["Papua New Guinea","Nelson Muloing","Booths Commodities","Chairman regional ?","mailto:nelson.muloing@bootscommodities.com","+67570788141"],
+ ["Kenya","Solomon Opiyo","GIFE Enterprise","Director","https://www.artisanalminingadvocates.com/gife","+254702275883"],
+ ["Papua New Guinea","Immaculate Javia","Sustainable Alluvial Mining","Director","https://ijavia.wixsite.com/website","+67570644612"],
+ ["CHINA","Zeng Gong","JINCHAN Metalic Ore Dressing Agent","Director","https://www.linkedin.com/in/zheng-gong-jc/","+8617768345216"],
+ ["Cameroon Chad","Jean Paul Car","FLMEP","FOunder","https://www.artisanalminingadvocates.com/cameroon","+23675359818"],
+ ["Chad, France","JT In Paris","FLMEP","FOunder","https://www.flmepdatabase.org/","+33753520326"],
+ ["USA","Toby Pomeroy","Goldrop USA","FOunder","https://buythegoldrop.com/","+15412317836"],
+ ["Kenya","Fred Ouko","SAFE MINING FORUM","founder","http://www.artisanalminingadvocates.com","+254718981816"],
+ ["South Africa","Evariste Umba Tsumbu","4IR Yako Consulting Services","Founder","https://www.linkedin.com/in/evariste-umba-tsumbu-22009910/","+27790910554"],
+ ["USA","Matt Libassi","Arizona State University","Lecturer","https://www.linkedin.com/in/matthew-libassi/","+19087211558"],
+ ["Kenya","Kephers Kochuka","MICMA","local chairman","http://www.asmakenya.com","+254724487155"],
+ ["Kenya","Simon Odoyo","Farmers of Gold","local chairman","https://www.farmersofgold.com/","+254714663311"],
+ ["Kenya","Joseph Longolan Ekiru","Turkana ASM","local chairman","http://www.asmakenya.com","+254721379197"],
+ ["Turkana,Kenya","Akilimo Safari","Turkana ASM","local chairman","http://www.asmakenya.com/","+254721461182"],
+ ["Papua New Guinea","Dulcie Saroa","Pacific Resources Limited","local chairman CEO","https://www.linkedin.com/in/dulcie-saroa-73a5294a/","+67578378459"],
+ ["Indonesia","Mr Susilohadi","APRI","Member","https://apriresmi.com/","+6282245933888"],
+ ["Indonesia","Yani Taufik","APRI","Member","https://apriresmi.com/","+62 821-9354-9449"],
+ ["Kenya","Alwanyi Mary","ASMAK","Member","http://www.asmakenya.com/","+254721374744"],
+ ["Kenya","Bismark Ndisio","ASMAK","Member","http://www.asmakenya.com","+254722575453"],
+ ["Kenya","Justin Sentei","AMA","Member","https://www.artisanalminingadvocates.com/","+254758424006"],
+ ["Kenya","Timothy Chairman","Kakamega ASM","member","http://www.asmakenya.com/","+254703961468"],
+ ["Kenya","Vicky Shikutwa","ASMAK","Member","http://www.asmakenya.com/","+254726772771"],
+ ["Kenya","Mr. Vishal Khagram","KCM","Member","https://twitter.com/KenChamberMines","+254733617350"],
+ ["Peru","Victor Angel YanquiPaucci Charlie","CONFEMIN Peru mining rep","member","","+51954404866"],
+ ["Kenya","Mahesh Ikoel Sylvester","ASMAK","Member","http://www.asmakenya.com","+254701463857"],
+ ["USA","Mickey","Goldrop USA","Member","https://buythegoldrop.com/","+14804448796"],
+ ["England","Terry Garde","Self Employed","Member","https://www.linkedin.com/in/terry-garde-53340299","+447504770967"],
+ ["Nigeria","Yahya Abdul Qudus","Geological & Earth Sciences","Policy Advisor","https://www.linkedin.com/in/yahaya-abdul-qudus-377a8b36","+2349064180406"],
+ ["USA, Kenya","Matt Hales","AMA","president","http://www.artisanalminingadvocates.com","+254797968766"],
+ ["Switzerland","","WRF","Project manager","https://www.wrforum.org","41715540903"],
+ ["SWITZERLAND","Robin Gilli","WRF","Project manager","https://www.wrforum.org","+41 79 912 97 54"],
+ ["Uganda","Eriya Omoit","Busia United (BU) small scale mining association","regional chairman","https://www.artisanalminingadvocates.com/uganda","+256782652319"],
+ ["Kenya","Evylene Kibunja","ASMAK","secretary Communications and office Manager","http://www.asmakenya.com","+254728516289"],
+ ["South Sudan","Charles Lotara","South Sudan Mining Journal","Senior Reporter","https://twitter.com/charles_lotara?lang=en","+211928587380"],
+ ["USA","Patrick Neilson","AMA","Vice Chair","http://www.artisanalminingadvocates.com","+17867082214"]
+];
+
+const countryFlagMap = {
+  "indonesia": "🇮🇩",
+  "kenya": "🇰🇪",
+  "south africa": "🇿🇦",
+  "philippines": "🇵🇭",
+  "usa": "🇺🇸",
+  "peru": "🇵🇪",
+  "china": "🇨🇳",
+  "zambia": "🇿🇲",
+  "zimbabwe": "🇿🇼",
+  "uganda": "🇺🇬",
+  "nigeria": "🇳🇬",
+  "republic of guinea": "🇬🇳",
+  "mali": "🇲🇱",
+  "ghana": "🇬🇭",
+  "liberia": "🇱🇷",
+  "ivory coast": "🇨🇮",
+  "congo drc": "🇨🇩",
+  "drc": "🇨🇩",
+  "south sudan": "🇸🇸",
+  "cameroon": "🇨🇲",
+  "chad": "🇹🇩",
+  "switzerland": "🇨🇭",
+  "england": "🇬🇧",
+  "france": "🇫🇷",
+  "paris, france": "🇫🇷"
+};
+
+function getMainCountryName(c) {
+  let parts = c.split(",").map(s => s.trim().toLowerCase());
+  for (let part of parts.reverse()) {
+    if (countryFlagMap[part]) return part;
   }
+  let lc = c.toLowerCase();
+  if (countryFlagMap[lc]) return lc;
+  for (let key in countryFlagMap) {
+    if (lc.includes(key)) return key;
+  }
+  return null;
+}
 
-  let participants = [
-    ["Indonesia", "Gatot Sugiharto - Chairman "],
-      ["USA, Kenya", "Matt Hales - CO Chairman"],
-    ["Papua New Guinea", "Immaculate Javia - Secretary"],
-    ["USA", "William Renz - Treasurer"]
-  ];
+function getFlagForCountry(c) {
+  let mainName = getMainCountryName(c);
+  return mainName ? countryFlagMap[mainName] : "🌐";
+}
 
-  const countryFlagMap = {
-    "indonesia": "🇮🇩",
-    "kenya": "🇰🇪",
-    "usa": "🇺🇸",
-    "papua new guinea": "🇵🇬"
-  };
+let byCountry = {};
+participants.forEach(p => {
+  let [country, name, org, pos, web, contact] = p;
+  if (!byCountry[country]) byCountry[country] = [];
+  byCountry[country].push({name, org, pos, web, contact});
+});
 
-      function getMainCountryName(c) {
-        let parts = c.split(",").map(s => s.trim().toLowerCase());
-        for (let part of parts.reverse()) {
-            if (countryFlagMap[part]) return part;
-        }
-        return null;
-    }
+function findNationalChairman(arr) {
+  let chairman = arr.find(r => r.pos && r.pos.toLowerCase().includes("chairman national"));
+  if (!chairman) chairman = arr.find(r => r.pos && r.pos.toLowerCase().includes("local chairman ceo"));
+  if (!chairman) {
+    chairman = {name: "No identified national chairman yet", org: "", pos: "", web: "", contact: ""};
+  }
+  return chairman;
+}
 
-    function getFlagForCountry(c) {
-        let mainName = getMainCountryName(c);
-        return mainName ? countryFlagMap[mainName] : "🌐";
-    }
+function hasKnownChairman(country) {
+  let entries = byCountry[country];
+  let c = findNationalChairman(entries);
+  return c.name !== "No identified national chairman yet";
+}
 
-    let byCountry = {};
-    participants.forEach(p => {
-        let [country, name, org, pos, web, contact] = p;
-        if (!byCountry[country]) byCountry[country] = [];
-        byCountry[country].push({ name, org, pos, web, contact });
-    });
+let countries = Object.keys(byCountry);
+countries = countries.sort((a,b) => {
+  if (a === "Indonesia") return -1;
+  if (b === "Indonesia") return 1;
+  if (a === "Kenya" && b !== "Indonesia") return -1;
+  if (b === "Kenya" && a !== "Indonesia") return 1;
 
-    let data = {
-        name: "GCMF Executive Board",
-        children: Object.keys(byCountry).map(country => {
-            let entries = byCountry[country];
-            return {
-                name: country,
-                type: "country",
-                flag: getFlagForCountry(country),
-                children: entries.map(e => ({
-                    name: e.name,
-                     type: "person",
+  let aKnown = hasKnownChairman(a);
+  let bKnown = hasKnownChairman(b);
+  if (aKnown && !bKnown) return -1;
+  if (bKnown && !aKnown) return 1;
+
+  return a.localeCompare(b);
+});
+
+const pastelColors = [
+  "#FFB3BA", "#FFDFBA", "#FFFFBA", "#BAFFC9",
+  "#BAE1FF", "#e0bbe4", "#ffdfd3", "#c7ceea",
+  "#fff2cc", "#d4a5a5", "#b5ead7", "#f7d8ba",
+  "#f2bac9", "#baffc9", "#d5e2f2", "#ffd6cc"
+];
+let countryColorMap = {};
+countries.forEach((c, i) => {
+  countryColorMap[c] = pastelColors[i % pastelColors.length];
+});
+
+let data = {
+  name: "GCMF",
+  children: countries.map(c => {
+    let entries = byCountry[c];
+    let chairman = findNationalChairman(entries);
+    let otherMembers = entries.filter(e => e !== chairman);
+    return {
+      name: c,
+      type: "country",
+      color: countryColorMap[c],
+      person: null,
+      children: [
+        {
+          name: "National Chairman",
+          type: "position",
+          person: {
+            name: chairman.name,
+            organization: chairman.org,
+            position: chairman.pos,
+            website: chairman.web,
+            contact: chairman.contact
+          },
+          // Just "Members" now (no "(click to expand)")
+          children: otherMembers.length > 0 ? [{
+            name: "Members",
+            type: "roleGroup",
+            person: null,
+            children: otherMembers.map(m => ({
+              name: m.name,
+              type: "person",
               person: {
-                name: e.name,
-                organization: e.org,
-                position: e.pos,
-                website: e.web,
-                contact: e.contact
+                name: m.name,
+                organization: m.org,
+                position: m.pos,
+                website: m.web,
+                contact: m.contact
               }
-                }))
-            };
-        })
-    };
-
-  const width = 850;
-  const height = 750;
-  const svg = d3.select("svg")
-    .attr("width", width)
-    .attr("height", height);
-
-  const gLink = svg.append("g").attr("class", "links");
-  const gNode = svg.append("g").attr("class", "nodes");
-
-  let root = d3.hierarchy(data);
-  const treeLayout = d3.tree().size([height - 200, width - 300]);
-  treeLayout(root);
-
-  collapse(root);
-  update(root);
-
-  function collapse(d) {
-    if (d.children) {
-      d._children = d.children;
-      d._children.forEach(collapse);
-      d.children = null;
+            }))
+          }] : []
+        }
+      ]
     }
+  })
+};
+
+const width = 1500;
+const height = 2000;
+const svg = d3.select("svg")
+  .attr("width", width)
+  .attr("height", height);
+
+const gLink = svg.append("g").attr("class", "links");
+const gNode = svg.append("g").attr("class", "nodes");
+
+const tooltip = d3.select("#tooltip");
+
+let root = d3.hierarchy(data);
+const treeLayout = d3.tree().size([height - 200, width - 300]);
+treeLayout(root);
+
+// Collapse all so only GCMF is visible
+collapse(root);
+
+console.log("Descendants:", root.descendants());
+console.log("Number of descendants:", root.descendants().length);
+console.log("Descendant names:", root.descendants().map(d => d.data.name));
+
+update(root);
+
+function collapse(d) {
+  if(d.children) {
+    d._children = d.children;
+    d._children.forEach(collapse);
+    d.children = null;
   }
+}
 
-  function expandAll(d) {
-    if (d._children) {
-      d.children = d._children;
-      d._children = null;
-    }
-    if (d.children) {
-      d.children.forEach(expandAll);
-    }
+// Expands all descendants of a node
+function expandAll(d) {
+  if(d._children) {
+    d.children = d._children;
+    d._children = null;
   }
+  if(d.children) {
+    d.children.forEach(expandAll);
+  }
+}
 
-  function toggleChildren(d) {
+function toggleChildren(d) {
   // If the node is collapsed, expand it; else collapse
   if(d.children) {
     // It's open, so collapse
