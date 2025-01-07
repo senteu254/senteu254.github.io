@@ -27,7 +27,6 @@
 
   .star {
     position: absolute;
-    /* We'll define star colors dynamically in JS */
     border-radius: 50%;
     opacity: 0;
     animation: flicker 5s infinite alternate ease-in-out;
@@ -39,11 +38,6 @@
     100% { opacity: 0; transform: translate(-10px,5px); }
   }
 
-  .star-delay1 { animation-delay: 1s; }
-  .star-delay2 { animation-delay: 2s; }
-  .star-delay3 { animation-delay: 3s; }
-  .star-slow   { animation-duration: 7s; }
-
   .star-small  { width: 4px; height: 4px; }
   .star-medium { width: 6px; height: 6px; }
   .star-large  { width: 8px; height: 8px; }
@@ -52,7 +46,6 @@
     display: block;
     margin: 20px;
     background: transparent;
-    /* No bounding box here */
   }
 
   .node text {
@@ -96,36 +89,25 @@ const starCount = 100;
 const sizes = ['star-small', 'star-medium', 'star-large'];
 const delayClasses = ['star-delay1','star-delay2','star-delay3','star-slow'];
 
-// Multiple colors for stars
 const starColors = [
-  '#FFD700', // Gold
-  '#FF69B4', // Hot Pink
-  '#00FFFF', // Aqua
-  '#FF8C00', // Dark Orange
-  '#ADFF2F', // Greenish Yellow
-  '#DA70D6', // Orchid
-  '#00FA9A', // Medium Spring Green
+  '#FFD700', '#FF69B4', '#00FFFF', '#FF8C00', 
+  '#ADFF2F', '#DA70D6', '#00FA9A',
 ];
 
 for (let i = 0; i < starCount; i++) {
   const star = document.createElement('div');
   star.classList.add('star');
-
-  // Random position
   const x = Math.random() * window.innerWidth;
   const y = Math.random() * window.innerHeight;
   star.style.left = x + 'px';
   star.style.top = y + 'px';
 
-  // Random size and delay class
   star.classList.add(sizes[Math.floor(Math.random()*sizes.length)]);
   star.classList.add(delayClasses[Math.floor(Math.random()*delayClasses.length)]);
-
-  // Choose a random star color and create a radial gradient background
+  
   const color = starColors[Math.floor(Math.random() * starColors.length)];
-  // radial gradient: center bright, fading out
   star.style.background = `radial-gradient(circle, ${color} 5%, ${color} 20%, transparent 100%)`;
-
+  
   starfield.appendChild(star);
 }
 
@@ -133,7 +115,7 @@ for (let i = 0; i < starCount; i++) {
 // FULL PARTICIPANTS DATA
 // -----------------------------------------
 let participants = [
- ["South Africa","Kgothatso Nhlengetwa","NAAM","AADVISOR","https://web.facebook.com/groups/773326350152467","+27 73 004 2457"],
+["South Africa","Kgothatso Nhlengetwa","NAAM","AADVISOR","https://web.facebook.com/groups/773326350152467","+27 73 004 2457"],
  ["DRC","Augustin Tresmore","FEMICO","Advisor Expert","https://fecomico.org/","+243978125559"],
  ["Mali","Foumba Tafaran Mamadou","Columbia River Mining Supplies","Africa and Middle East Representative","https://www.linkedin.com/in/fomba-tafaran-mamadou-a27579125","+22369891406"],
  ["Ivory Coast","Jonathan Kekelys","JON & KIN,CO","CEO","https://www.linkedin.com/in/jonathan-kekelys-9025484/","+2250140092453"],
@@ -172,7 +154,7 @@ let participants = [
  ["Indonesia","Yani Taufik","APRI","Member","https://apriresmi.com/","+62 821-9354-9449"],
  ["Kenya","Alwanyi Mary","ASMAK","Member","http://www.asmakenya.com/","+254721374744"],
  ["Kenya","Bismark Ndisio","ASMAK","Member","http://www.asmakenya.com","+254722575453"],
- ["Kenya","Justin Sentei","AMA","Member","https://www.artisanalminingadvocates.com/","+254758424006"],
+ ["Kenya","Justin Senteu","AMA","Member","https://www.artisanalminingadvocates.com/","+254758424006"],
  ["Kenya","Timothy Chairman","Kakamega ASM","member","http://www.asmakenya.com/","+254703961468"],
  ["Kenya","Vicky Shikutwa","ASMAK","Member","http://www.asmakenya.com/","+254726772771"],
  ["Kenya","Mr. Vishal Khagram","KCM","Member","https://twitter.com/KenChamberMines","+254733617350"],
@@ -306,7 +288,6 @@ let data = {
             website: chairman.web,
             contact: chairman.contact
           },
-          // Just "Members" now (no "(click to expand)")
           children: otherMembers.length > 0 ? [{
             name: "Members",
             type: "roleGroup",
@@ -347,10 +328,6 @@ treeLayout(root);
 // Collapse all so only GCMF is visible
 collapse(root);
 
-console.log("Descendants:", root.descendants());
-console.log("Number of descendants:", root.descendants().length);
-console.log("Descendant names:", root.descendants().map(d => d.data.name));
-
 update(root);
 
 function collapse(d) {
@@ -373,17 +350,13 @@ function expandAll(d) {
 }
 
 function toggleChildren(d) {
-  // If the node is collapsed, expand it; else collapse
   if(d.children) {
-    // It's open, so collapse
     d._children = d.children;
     d.children = null;
   } else {
-    // It's collapsed, so open
     d.children = d._children;
     d._children = null;
-    // If it's GCMF or a country, after opening, fully expand all descendants
-    if (d.data.name === "GCMF" || d.data.type === "country") {
+    if (d.data.type === "country") {
       expandAll(d);
     }
   }
@@ -402,7 +375,7 @@ function getDisplayLines(d) {
       return [ "National Chairman: Unknown" ];
     }
   } else if (d.data.name === "Members") {
-    return [ "Members" ]; // No "(click to expand)"
+    return [ "Members" ]; 
   } else if (d.data.type === "country") {
     let flag = getFlagForCountry(d.data.name);
     return [ `${flag} ${d.data.name}` ];
@@ -432,18 +405,25 @@ function update(source) {
   const nodeEnter = node.enter().append("g")
     .attr("class", "node")
     .on("click", (event, d) => {
-      toggleChildren(d);
+      if (d.data.type === "country") {
+        collapse(root);
+        expandAll(d);
+      } else if (d.data.type === 'position') {
+        d.children = d._children;
+      } else {
+        toggleChildren(d);
+      }
       update(d);
     })
     .on("mouseover", (event, d) => {
       if (d.data.person && d.data.person.name && d.data.person.name !== "No identified national chairman yet") {
-        tooltip.html(`
-          <strong>${d.data.person.name}</strong><br>
+        tooltip.html(
+          `<strong>${d.data.person.name}</strong><br>
           <strong>Position:</strong> ${d.data.person.position}<br>
           <strong>Org:</strong> ${d.data.person.organization}<br>
           <a href="${d.data.person.website}" target="_blank">${d.data.person.website}</a><br>
-          <strong>Contact:</strong> ${d.data.person.contact}
-        `);
+          <strong>Contact:</strong> ${d.data.person.contact}`
+        );
         tooltip.style("visibility", "visible");
       }
     })
@@ -465,7 +445,6 @@ function update(source) {
     let bgColor = "#333";
 
     if(d.data.type === "country") {
-      // Country stripe
       g.append("rect")
         .attr("x", 0)
         .attr("y", -12)
